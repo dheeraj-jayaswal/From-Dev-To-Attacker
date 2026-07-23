@@ -59,7 +59,7 @@ reflects actual business risk, not just a CVSS score in isolation.
 
 This is a living journal — new topics get added as I rewrite and expand the series.
 
-- **🔍 Recon & Fingerprinting** — subdomain enumeration, DNS attacks, certificate transparency, exposed endpoints
+- **🔍 Recon & Fingerprinting** — subdomain enumeration, DNS zone transfer, wildcard detection, subdomain takeover, dangling CNAMEs, reverse DNS, ASN/IP range mapping, certificate transparency, JS endpoint extraction, Wayback Machine harvesting
 - **🛡️ Access Control** — IDOR, BOLA, privilege escalation, mass assignment
 - **🔑 Authentication & Session** — JWT attacks, auth bypass, MFA bypass, password reset flaws, brute force
 - **💉 Injection** *(coming soon)*
