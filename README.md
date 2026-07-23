@@ -55,9 +55,9 @@ reflects actual business risk, not just a CVSS score in isolation.
 
 ---
 
-## 🗂️ Categories (Growing Over Time)
+## 🗂️ Categories
 
-This is a living journal — new topics get added as I rewrite and expand the series.
+This journal now spans the full breadth of enterprise Web App & API pentesting — 67 entries across 11 categories. New entries will continue to be added over time within these categories.
 
 - **🔍 Recon & Fingerprinting** — subdomain enumeration, DNS zone transfer, wildcard detection, subdomain takeover, dangling CNAMEs, reverse DNS, ASN/IP range mapping, certificate transparency, JS endpoint extraction, Wayback Machine harvesting, directory/file bruteforce, hidden parameter discovery, API endpoint discovery, robots.txt/sitemap leaks, Shodan/Censys exposed services, server banner & framework version disclosure, admin panel discovery, Cloudflare origin IP leaks
 - **🛡️ Access Control** — IDOR, BOLA, privilege escalation, mass assignment
@@ -65,11 +65,11 @@ This is a living journal — new topics get added as I rewrite and expand the se
 - **🗃️ Sensitive Data Exposure** — pastebin/gist leaks, backup file discovery, source map exposure, GitHub dorking for API keys, hardcoded credentials in git history, exposed S3 buckets
 - **🔗 Supply Chain Security** — dependency confusion (npm/PyPI namespace squatting)
 - **⚙️ Security Misconfiguration** — debug mode in production, error stack traces, phpinfo/debug endpoints, security header analysis
-- **💉 Injection** *(coming soon)*
-- **🌐 API Security** *(coming soon)*
-- **☁️ Cloud & Infrastructure** *(coming soon)*
-- **📁 File Upload & Path Traversal** *(coming soon)*
-- **💼 Business Logic** *(coming soon)*
+- **💉 Injection** — SQL injection, NoSQL injection, OS command injection, SSTI, XSS, CSV/formula injection
+- **🌐 API Security** — BOLA, mass assignment, excessive data exposure, lack of rate limiting, GraphQL security, BFLA
+- **☁️ Cloud & Infrastructure** — SSRF to cloud metadata, IAM privilege escalation, exposed Docker/Kubernetes APIs, CI/CD secrets exposure, Terraform state exposure
+- **📁 File Upload & Path Traversal** — unrestricted file upload, path traversal/LFI, ZIP Slip, remote file inclusion
+- **💼 Business Logic** — race conditions, price manipulation, workflow step bypass, coupon/discount abuse, negative quantity/value manipulation
 
 ---
 
