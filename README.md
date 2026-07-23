@@ -59,9 +59,12 @@ reflects actual business risk, not just a CVSS score in isolation.
 
 This is a living journal — new topics get added as I rewrite and expand the series.
 
-- **🔍 Recon & Fingerprinting** — subdomain enumeration, DNS zone transfer, wildcard detection, subdomain takeover, dangling CNAMEs, reverse DNS, ASN/IP range mapping, certificate transparency, JS endpoint extraction, Wayback Machine harvesting
+- **🔍 Recon & Fingerprinting** — subdomain enumeration, DNS zone transfer, wildcard detection, subdomain takeover, dangling CNAMEs, reverse DNS, ASN/IP range mapping, certificate transparency, JS endpoint extraction, Wayback Machine harvesting, directory/file bruteforce, hidden parameter discovery, API endpoint discovery, robots.txt/sitemap leaks, Shodan/Censys exposed services, server banner & framework version disclosure, admin panel discovery, Cloudflare origin IP leaks
 - **🛡️ Access Control** — IDOR, BOLA, privilege escalation, mass assignment
-- **🔑 Authentication & Session** — JWT attacks, auth bypass, MFA bypass, password reset flaws, brute force
+- **🔑 Authentication & Session** — JWT attacks, auth bypass, MFA bypass, password reset flaws, brute force, username enumeration (response & timing), account lockout bypass
+- **🗃️ Sensitive Data Exposure** — pastebin/gist leaks, backup file discovery, source map exposure, GitHub dorking for API keys, hardcoded credentials in git history, exposed S3 buckets
+- **🔗 Supply Chain Security** — dependency confusion (npm/PyPI namespace squatting)
+- **⚙️ Security Misconfiguration** — debug mode in production, error stack traces, phpinfo/debug endpoints, security header analysis
 - **💉 Injection** *(coming soon)*
 - **🌐 API Security** *(coming soon)*
 - **☁️ Cloud & Infrastructure** *(coming soon)*
