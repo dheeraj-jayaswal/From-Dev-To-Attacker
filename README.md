@@ -116,10 +116,13 @@ not just the attack.
 
 ---
 
+## 📄 License
 [![License](https://img.shields.io/badge/license-CC%20BY%204.0-blue)](LICENSE.md)
 [![Last Commit](https://img.shields.io/github/last-commit/dheeraj-jayaswal/From-Dev-To-Attacker)](https://github.com/dheeraj-jayaswal/From-Dev-To-Attacker/commits/main)
 
 ⭐ If this helped you, consider starring the repo — it helps others find it too.
+
+---
 
 ## 🤝 Connect
 
