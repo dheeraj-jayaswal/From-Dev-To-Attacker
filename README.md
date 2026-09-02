@@ -4,7 +4,7 @@
 
 **A field journal on why vulnerabilities exist — not just how to exploit them.**
 
-*Written from 5+ years of hands-on Web App & API penetration testing across
+*Written from 6+ years of hands-on Web App & API penetration testing across
 Income Tax, Banking, Retail, E-commerce, Freight Logistics, and Education platforms —
 by someone who spent years writing the code attackers now target.*
 
@@ -26,7 +26,7 @@ of this repository: I've written the kind of code that gets exploited, so I know
 which shortcuts, deadline pressures, and assumptions lead to it.
 
 I'm currently Technology Lead – Offensive Security at Infosys, with 15+ years in IT and
-5+ years focused entirely on Web Application & API Penetration Testing. Every write-up
+6+ years focused entirely on Web Application & API Penetration Testing. Every write-up
 here reflects real patterns seen across professional engagements (sanitised and
 anonymised — no client-identifying detail is ever included).
 
@@ -93,7 +93,7 @@ not just the attack.
 - **Name** — Dheeraj Kumar Jayaswal
 - **Role** — Technology Lead – Offensive Security, Infosys Limited
 - **Focus** — Web Application & API Penetration Testing
-- **Experience** — 15+ years in IT · 5+ years in Offensive Security
+- **Experience** — 15+ years in IT · 6+ years in Offensive Security
 - **Edge** — Former full-stack developer (ASP.NET / SQL Server) — I think like a developer, attack like a hacker
 - **Domains tested** — Income Tax · Banking · Retail · E-commerce · Freight Logistics · Education
 - **Certifications** — CEH (2021) · AWS Certified Solutions Architect – Associate · AWS Certified Cloud Practitioner · Pursuing OSCP & IIT Kanpur Executive Cert in Cyber Security
