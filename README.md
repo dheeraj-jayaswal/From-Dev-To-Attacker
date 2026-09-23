@@ -4,13 +4,13 @@
 
 **A field journal on why vulnerabilities exist — not just how to exploit them.**
 
-*Written from 6+ years of hands-on Web App & API penetration testing across
+*Written from 9+ years of hands-on Web App & API penetration testing across
 Income Tax, Banking, Retail, E-commerce, Freight Logistics, and Education platforms —
 by someone who spent years writing the code attackers now target.*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Dheeraj%20Kumar%20Jayaswal-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/dheerajkumarjayaswal)
 [![GitHub](https://img.shields.io/badge/GitHub-dheeraj--jayaswal-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dheeraj-jayaswal)
-[![Location](https://img.shields.io/badge/Location-Pune%2C%20India-FF6B6B?style=for-the-badge&logo=googlemaps&logoColor=white)](https://github.com/dheeraj-jayaswal)
+[![Location](https://img.shields.io/badge/Location-Indore%2C%20India%20%28Remote%29-FF6B6B?style=for-the-badge&logo=googlemaps&logoColor=white)](https://github.com/dheeraj-jayaswal)
 
 </div>
 
@@ -25,8 +25,8 @@ Server) before moving into offensive security, and that background is the entire
 of this repository: I've written the kind of code that gets exploited, so I know exactly
 which shortcuts, deadline pressures, and assumptions lead to it.
 
-I'm currently Technology Lead – Offensive Security at Infosys, with 15+ years in IT and
-6+ years focused entirely on Web Application & API Penetration Testing. Every write-up
+I'm currently a Principal Penetration Tester at VikingCloud (previously Technology Lead – Offensive
+Security at Infosys), with 16+ years in IT and 9+ years focused on Web Application & API Penetration Testing. Every write-up
 here reflects real patterns seen across professional engagements (sanitised and
 anonymised — no client-identifying detail is ever included).
 
@@ -128,9 +128,9 @@ I approach every engagement in three phases:
 ## 👤 About Me
 
 - **Name** — Dheeraj Kumar Jayaswal
-- **Role** — Technology Lead – Offensive Security, Infosys Limited
+- **Role** — Principal Penetration Tester, VikingCloud (previously Technology Lead – Offensive Security, Infosys Limited)
 - **Focus** — Web Application & API Penetration Testing
-- **Experience** — 15+ years in IT · 6+ years in Offensive Security
+- **Experience** — 16+ years in IT · 9+ years in Offensive Security
 - **Edge** — Former full-stack developer (ASP.NET / SQL Server) — I think like a developer, attack like a hacker
 - **Domains** — Income Tax · Banking · Retail · E-commerce · Freight Logistics · Education
 
