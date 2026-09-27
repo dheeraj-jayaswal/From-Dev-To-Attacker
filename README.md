@@ -63,6 +63,7 @@ reflects actual business risk, not just a CVSS score in isolation.
 | Repository | What's in it |
 |---|---|
 | **[From-Dev-To-Attacker](https://github.com/dheeraj-jayaswal/From-Dev-To-Attacker)** *(this repo)* | My flagship field journal — 67 original write-ups on vulnerability patterns, written from a developer's lens, with enterprise domain-impact framing across Income Tax, Banking, Retail, E-commerce, Freight Logistics, and Education |
+| [Pentest-Engagement-Playbook](https://github.com/dheeraj-jayaswal/Pentest-Engagement-Playbook) | Consultant-grade scoping, ROE, severity rationale, and executive reporting templates — the client-facing operational playbook behind an engagement |
 | [CICD-Goat-Vapt-Writeup](https://github.com/dheeraj-jayaswal/CICD-Goat-Vapt-Writeup) | Full VAPT writeup against OWASP CICD-Goat — 16 findings including CVE-2024-23897, mapped to the OWASP Top 10 CI/CD Security Risks, with PoCs and interview-ready summaries |
 | [From-Pentester-To-Red-Teamer](https://github.com/dheeraj-jayaswal/From-Pentester-To-Red-Teamer) | My structured 24-month roadmap for transitioning from Web/API pentesting into Red Teaming — phases, labs, certifications, and progress tracked openly as I work through it |
 | [AppSec-From-The-Trenches](https://github.com/dheeraj-jayaswal/AppSec-From-The-Trenches) | Pentest tools & methodology reference — how I actually use Burp Suite, Nmap, Metasploit, Hydra, Hashcat, and more, plus my WAPT methodology |
